@@ -12,21 +12,24 @@ console.log('DB_NAME:', process.env.DB_NAME);
 
 app.use(bodyParser.json());
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    connectTimeout: 10000,
+    connectionLimit: 10,  // Max number of concurrent connections
+    connectTimeout: 10000,  // Timeout in milliseconds (10 seconds)
 });
 
 
-db.connect(err => {
+
+db.getConnection((err, connection) => {
     if (err) {
-        console.error('Error connecting to MySQL:', err);
+        console.error('Error connecting to MySQL:', err);   
         return;
     }
-    console.log('Connected to MySQL');
+    console.log('Connected to MySQL with pool');
+    connection.release(); // Release the connection back to the pool
 });
 
 
